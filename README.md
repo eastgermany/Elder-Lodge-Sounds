@@ -1,0 +1,2 @@
+# Elder-Lodge-Sounds
+Written in MWScript. One of a few scripts designed to improve sound in The Elder Scrolls III: Morrowind. sndrand_cave_sphere attempts to create a 3D soundscape. It simulates a sphere of fixed radius and origin, computes a random point on the surface of sphere. Sound emitter origin is then moved to that point. Delay and which sound (out of 10) to be played is randomly determined. Sound is then played. 
