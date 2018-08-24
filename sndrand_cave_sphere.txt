@@ -1,0 +1,137 @@
+begin sndrand_cave_sphere
+
+	float NextFireTime
+	float TimePassed
+	short SoundState
+	short randval
+
+	;this is needed - ifx cannot evaluate vars against literals
+	short TimeExceeds
+
+	short StartPosStored
+
+	float startposx
+	float startposy
+	float startposz
+
+		;polar co-ordinate system, find 3 perpendicular lines of two right-angled triangles
+		;to find point on surface of sphere from which sound should play
+
+		;random angles between 0 and 360 are stored in sinfirstang and sinsecondang to reduce number of variables
+		;these are then overwritten by the sine and cosine functions of those angles
+
+	float sinfirstang
+	float cosfirstang
+	float sinsecondang
+
+	float displacex
+	float displacey
+	float displacez
+	float radius
+
+	set TimePassed to ( TimePassed + GetSecondsPassed )
+
+	if ( StartPosStored == 0 )
+
+		set startposx to ( GetPos, X )
+		set startposy to ( GetPos, Y )
+		set startposz to ( GetPos, Z )
+		set StartPosStored to 1
+
+		set radius to 350 ;radius of sphere
+
+	endif
+
+	
+	set TimeExceeds to ( NextFireTime - TimePassed )
+
+	if ( TimeExceeds < 0 )
+		set TimeExceeds to 1
+	else
+		set TimeExceeds to 0
+	endif
+	
+
+	if ( CellChanged == 1 )
+		return
+	endif
+
+
+	if ( TimeExceeds == 1 )
+
+			;***Determine new random values for delay & soundstate***
+
+		set randval to Random, 6
+		set NextFireTime to ( TimePassed + 7 + randval )	;sets delay to a random int between 7 and 12
+
+		while ( TimeExceeds == 1 ) 								;recycling timeexceeds as the loop-breaking var
+			set randval to Random, 10
+				if ( randval != SoundState )						;don't play the same sound twice in sequence
+				set SoundState to randval
+				set TimeExceeds to 0
+			endif
+		endwhile
+		set TimeExceeds to 1 										;timeexceeds returned to normal use here
+
+			;***Link soundstate to playsound function***
+
+		if		 ( SoundState == 0 )		
+			PlaySound3DVP "a_amb_cave1" 0.25, 1.0
+		elseif ( SoundState == 1 )		
+			PlaySound3DVP "a_amb_cave2" 0.25, 1.0
+		elseif ( SoundState == 2 )		
+			PlaySound3DVP "a_amb_cave3" 0.25, 1.0
+		elseif ( SoundState == 3 )		
+			PlaySound3DVP "a_amb_cave4" 0.25, 1.0
+		elseif ( SoundState == 4 )		
+			PlaySound3DVP "a_amb_cave5" 0.25, 1.0
+		elseif ( SoundState == 5 )		
+			PlaySound3DVP "a_amb_cave6" 0.25, 1.0
+		elseif ( SoundState == 6 )
+			PlaySound3DVP "a_amb_cave7" 0.25, 1.0
+		elseif ( SoundState == 7 )		
+			PlaySound3DVP "a_amb_cave8" 0.25, 1.0
+		elseif ( SoundState == 8 )		
+			PlaySound3DVP "a_amb_cave9" 0.25, 1.0
+		elseif ( SoundState == 9 )		
+			PlaySound3DVP "a_amb_cave10" 0.25, 1.0
+		endif
+
+	endif
+
+	ifx ( TimeExceeds ) ;vanilla if conditions do not work with extended functions, ifx is required
+
+		xPosition, startposx, startposy, startposz, 0 ;return sound activator to centre of circle
+
+		;sinfirstang and sinsecondang's initial role is to store each a random value between 0 and 360
+		set sinfirstang to Random, 360
+		setx sinfirstang to XDegRad sinfirstang
+
+		set sinsecondang to Random, 360
+		setx sinsecondang to XDegRad sinsecondang
+
+		set cosfirstang to sinfirstang ;at this point, firstang, not sin(firstang), is stored in sinfirstang
+
+		setx sinfirstang to XSin sinfirstang
+		setx cosfirstang to XCos cosfirstang
+		setx sinsecondang to XSin sinsecondang
+
+			;three perpendicular lines leading to point on surface of sphere given by
+			;a = radius * sin(ang1), b = radius * cos(ang1), c = radius * sin(ang2)
+			
+		set displacex to ( radius * sinfirstang )
+		set displacex to displacex + startposx
+
+		set displacey to ( radius * cosfirstang )
+		set displacey to displacey + startposy
+
+		set displacez to ( radius * sinsecondang )
+		set displacez to displacez + startposz
+
+		xPosition, displacex, displacey, displacez, 0
+
+	endif
+
+end
+
+
